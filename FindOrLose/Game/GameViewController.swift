@@ -127,7 +127,18 @@ class GameViewController: UIViewController {
         
         self.gameScoreLabel.text = "Score: \(self.gameScore)"
         
-        // TODO: - Handling game score
+        self.gameTimer = Timer
+          .scheduledTimer(withTimeInterval: 0.1, repeats: true, block: { [unowned self] timer in
+            self.gameScoreLabel.text = "Score: \(self.gameScore)"
+            
+            self.gameScore -= 10
+            
+            if self.gameScore <= 0 {
+              self.gameScore = 0
+              
+              timer.invalidate()
+            }
+          })
         
         self.stopLoaders()
         self.setImages()
