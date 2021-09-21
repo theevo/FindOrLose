@@ -1,4 +1,4 @@
-/// Copyright (c) 2020 Razeware LLC
+/// Copyright (c) 2021 Razeware LLC
 /// 
 /// Permission is hereby granted, free of charge, to any person obtaining a copy
 /// of this software and associated documentation files (the "Software"), to deal
@@ -27,33 +27,15 @@
 /// THE SOFTWARE.
 
 import Foundation
-import UIKit
-import Combine
 
-enum ImageDownloader {
-  static func download(url: String) -> AnyPublisher<UIImage, GameError> {
-    guard let url = URL(string: url) else {
-      return Fail(error: GameError.invalidURL)
-        .eraseToAnyPublisher()
-    }
-
-    return URLSession.shared.dataTaskPublisher(for: url)
-      .tryMap { (data: Data, response: URLResponse) -> Data in
-        guard
-          let httpURLResponse = response as? HTTPURLResponse,
-          httpURLResponse.statusCode == 200
-        else {
-          throw GameError.statusCode
-        }
-        return data
-      }
-      .tryMap { data in
-        guard let image = UIImage(data: data) else {
-          throw GameError.invalidImage
-        }
-        return image
-      }
-      .mapError { GameError.map($0) }
-      .eraseToAnyPublisher()
+enum GameError: Error {
+  case statusCode
+  case decoding
+  case invalidImage
+  case invalidURL
+  case other(Error)
+  
+  static func map(_ error: Error) -> GameError {
+    return (error as? GameError) ?? .other(error)
   }
 }
