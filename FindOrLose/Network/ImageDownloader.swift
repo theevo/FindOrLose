@@ -40,10 +40,11 @@ enum ImageDownloader {
     return URLSession.shared.dataTaskPublisher(for: url)
       .tryMap { (data: Data, response: URLResponse) -> Data in
         guard
-          let httpURLResponse = response as? HTTPURLResponse,
-          httpURLResponse.statusCode == 200
-        else {
-          throw GameError.statusCode
+          let httpURLResponse = response as? HTTPURLResponse else {
+          throw GameError.badResponse
+        }
+        guard httpURLResponse.statusCode == 200 else {
+          throw GameError.statusCode(httpURLResponse.statusCode)
         }
         return data
       }

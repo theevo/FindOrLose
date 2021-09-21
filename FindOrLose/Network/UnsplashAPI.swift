@@ -45,10 +45,12 @@ enum UnsplashAPI {
 
     return session.dataTaskPublisher(for: urlRequest)
       .tryMap { (data: Data, response: URLResponse) in
-        guard let httpURLResponse = response as? HTTPURLResponse,
-              httpURLResponse.statusCode == 200
+        guard let httpURLResponse = response as? HTTPURLResponse else {
+          throw GameError.badResponse
+        }
+        guard httpURLResponse.statusCode == 200
         else {
-          throw GameError.statusCode
+          throw GameError.statusCode(httpURLResponse.statusCode)
         }
         return data
         }

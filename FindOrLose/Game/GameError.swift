@@ -28,12 +28,22 @@
 
 import Foundation
 
-enum GameError: Error {
-  case statusCode
+enum GameError: LocalizedError {
+  case badResponse
+  case statusCode(Int)
   case decoding
   case invalidImage
   case invalidURL
   case other(Error)
+  
+  var errorDescription: String? {
+    switch self {
+    case .statusCode(let code):
+      return "Status code: \(code)"
+    default:
+      return self.localizedDescription
+    }
+  }
   
   static func map(_ error: Error) -> GameError {
     return (error as? GameError) ?? .other(error)
