@@ -46,7 +46,7 @@ class GameViewController: UIViewController {
   }
 
   var gameImages: [UIImage] = []
-  var gameTimer: Timer?
+  var gameTimer: AnyCancellable?
   var gameLevel = 0
   var gameScore = 0
 
@@ -90,7 +90,7 @@ class GameViewController: UIViewController {
   // MARK: - Game Functions
 
   func playGame() {
-    gameTimer?.invalidate()
+    gameTimer?.cancel()
 
     gameStateButton.setTitle("Stop", for: .normal)
 
@@ -127,18 +127,18 @@ class GameViewController: UIViewController {
         
         self.gameScoreLabel.text = "Score: \(self.gameScore)"
         
-        self.gameTimer = Timer
-          .scheduledTimer(withTimeInterval: 0.1, repeats: true, block: { [unowned self] timer in
+        self.gameTimer = Timer.publish(every: 0.1, on: RunLoop.main, in: .common)
+          .autoconnect()
+          .sink { [unowned self] _ in
             self.gameScoreLabel.text = "Score: \(self.gameScore)"
-            
             self.gameScore -= 10
             
-            if self.gameScore <= 0 {
+            if self.gameScore < 0 {
               self.gameScore = 0
               
-              timer.invalidate()
+              self.gameTimer?.cancel()
             }
-          })
+          }
         
         self.stopLoaders()
         self.setImages()
@@ -147,7 +147,7 @@ class GameViewController: UIViewController {
   }
 
   func stopGame() {
-    gameTimer?.invalidate()
+    gameTimer?.cancel()
 
     gameStateButton.setTitle("Play", for: .normal)
 
