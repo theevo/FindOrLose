@@ -147,6 +147,8 @@ class GameViewController: UIViewController {
   }
 
   func stopGame() {
+    subscriptions.forEach { $0.cancel() }
+    
     gameTimer?.cancel()
 
     gameStateButton.setTitle("Play", for: .normal)
@@ -173,6 +175,7 @@ class GameViewController: UIViewController {
   }
 
   func resetImages() {
+    subscriptions = []
     gameImages = []
 
     gameImageView.forEach { $0.image = nil }
